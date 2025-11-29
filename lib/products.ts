@@ -1,13 +1,21 @@
 // lib/products.ts
 
+export type EngineCategory = "industrial" | "power-gen" | "marine";
+
 export interface EngineProduct {
     id: string;
     name: string;
     power: string;
     fuel: string;
     description: string;
-    category: "industrial" | "power-gen" | "marine";
+    category: EngineCategory;
 }
+
+export const CATEGORY_LABEL: Record<EngineCategory, string> = {
+    industrial: "산업용",
+    "power-gen": "발전용",
+    marine: "해양용",
+};
 
 export const FEATURED_PRODUCTS: EngineProduct[] = [
     {
@@ -38,3 +46,8 @@ export const FEATURED_PRODUCTS: EngineProduct[] = [
         category: "marine",
     },
 ];
+
+// 상세 페이지용 헬퍼
+export function getProductById(id: string): EngineProduct | undefined {
+    return FEATURED_PRODUCTS.find((p) => p.id === id);
+}
