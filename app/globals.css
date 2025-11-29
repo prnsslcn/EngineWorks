@@ -1,26 +1,47 @@
 @import "tailwindcss";
+@config "../tailwind.config.ts";
 
+/* 글로벌 스타일 */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: dark;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  /* Tailwind 유틸리티를 여기서 @apply로 사용 */
+  @apply bg-slate-950 text-slate-100 antialiased;
+}
+
+/* 공통 Container */
+.ew-page-container {
+  @apply max-w-6xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+/* Section */
+.ew-section {
+  @apply py-12 sm:py-16 lg:py-20;
+}
+
+/* Card 공통 */
+.ew-card {
+  @apply rounded-2xl bg-slate-900/80 border border-slate-800 shadow-ew-card backdrop-blur;
+}
+
+/* 버튼 스타일 */
+.ew-btn-primary {
+  @apply inline-flex items-center justify-center rounded-full px-6 py-2.5
+  bg-ew-accent text-slate-950 font-semibold text-sm tracking-tight
+  hover:bg-sky-400 transition-colors;
+}
+
+.ew-btn-ghost {
+  @apply inline-flex items-center justify-center rounded-full px-6 py-2.5
+  border border-slate-700 text-slate-100 text-sm
+  hover:bg-slate-800/70 transition-colors;
 }
