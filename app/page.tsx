@@ -1,7 +1,7 @@
 // app/page.tsx
 
 import Link from "next/link";
-import { FEATURED_PRODUCTS } from "@/lib/products";
+import { fetchAllProducts, EngineProduct } from "@/lib/products";
 
 const HIGHLIGHTS = [
     {
@@ -18,7 +18,11 @@ const HIGHLIGHTS = [
     },
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+    // Supabase에서 전체 제품 조회 후, 상위 3개만 메인에 노출
+    const allProducts: EngineProduct[] = await fetchAllProducts();
+    const featuredEngines = allProducts.slice(0, 3);
+
     return (
         <div className="ew-section space-y-16">
             {/* Hero Section */}
@@ -91,9 +95,7 @@ export default function HomePage() {
                                 <div className="rounded-xl border border-slate-700/70 bg-slate-900/70 px-3 py-2">
                                     <div className="text-slate-400 mb-1">발전용</div>
                                     <div className="font-semibold">99.97%</div>
-                                    <div className="text-[11px] text-slate-500">
-                                        평균 가동률
-                                    </div>
+                                    <div className="text-[11px] text-slate-500">평균 가동률</div>
                                 </div>
                                 <div className="rounded-xl border border-slate-700/70 bg-slate-900/70 px-3 py-2">
                                     <div className="text-slate-400 mb-1">정비 리드타임</div>
@@ -139,39 +141,46 @@ export default function HomePage() {
                     </Link>
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-3">
-                    {FEATURED_PRODUCTS.map((engine) => (
-                        <article
-                            key={engine.id}
-                            className="ew-card h-full flex flex-col p-4 sm:p-5"
-                        >
-                            <h3 className="text-base sm:text-lg font-semibold mb-2">
-                                {engine.name}
-                            </h3>
-                            <dl className="mb-3 space-y-1 text-xs sm:text-sm text-slate-300">
-                                <div className="flex items-center justify-between gap-2">
-                                    <dt className="text-slate-400">출력 범위</dt>
-                                    <dd className="font-medium">{engine.power}</dd>
+                {featuredEngines.length === 0 ? (
+                    <p className="text-sm text-slate-400">
+                        아직 등록된 엔진 제품이 없습니다. Supabase의{" "}
+                        <code>engine_product</code> 테이블에 데이터를 추가해 주세요.
+                    </p>
+                ) : (
+                    <div className="grid gap-4 md:grid-cols-3">
+                        {featuredEngines.map((engine) => (
+                            <article
+                                key={engine.id}
+                                className="ew-card h-full flex flex-col p-4 sm:p-5"
+                            >
+                                <h3 className="text-base sm:text-lg font-semibold mb-2">
+                                    {engine.name}
+                                </h3>
+                                <dl className="mb-3 space-y-1 text-xs sm:text-sm text-slate-300">
+                                    <div className="flex items-center justify-between gap-2">
+                                        <dt className="text-slate-400">출력 범위</dt>
+                                        <dd className="font-medium">{engine.power}</dd>
+                                    </div>
+                                    <div className="flex items-center justify-between gap-2">
+                                        <dt className="text-slate-400">연료 타입</dt>
+                                        <dd className="font-medium">{engine.fuel}</dd>
+                                    </div>
+                                </dl>
+                                <p className="text-xs sm:text-sm text-slate-300 flex-1 whitespace-pre-wrap">
+                                    {engine.description_md}
+                                </p>
+                                <div className="mt-4">
+                                    <Link
+                                        href={`/products/${engine.slug}`}
+                                        className="text-xs font-medium text-ew-accent hover:underline"
+                                    >
+                                        상세 스펙 보기 →
+                                    </Link>
                                 </div>
-                                <div className="flex items-center justify-between gap-2">
-                                    <dt className="text-slate-400">연료 타입</dt>
-                                    <dd className="font-medium">{engine.fuel}</dd>
-                                </div>
-                            </dl>
-                            <p className="text-xs sm:text-sm text-slate-300 flex-1">
-                                {engine.description}
-                            </p>
-                            <div className="mt-4">
-                                <Link
-                                    href="/products"
-                                    className="text-xs font-medium text-ew-accent hover:underline"
-                                >
-                                    상세 스펙 문의 →
-                                </Link>
-                            </div>
-                        </article>
-                    ))}
-                </div>
+                            </article>
+                        ))}
+                    </div>
+                )}
             </section>
 
             {/* Technology / Service Section */}
