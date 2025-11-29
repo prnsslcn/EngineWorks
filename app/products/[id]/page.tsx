@@ -1,5 +1,6 @@
 // app/products/[id]/page.tsx
 
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
@@ -8,11 +9,42 @@ import {
     EngineProduct,
 } from "@/lib/products";
 
-interface ProductDetailPageProps {
-    // ✅ Next 16: params는 Promise로 들어옴
-    params: Promise<{
-        id: string;
-    }>;
+// ✅ generateMetadata 에서 쓰는 params 타입 (Promise 아님)
+type ProductRouteParams = {
+    id: string;
+};
+
+// ✅ 동적 메타데이터
+export async function generateMetadata(
+    { params }: { params: Promise<ProductRouteParams> }
+): Promise<Metadata> {
+    const { id } = await params;
+    const product = getProductById(id);
+
+    if (!product) {
+        return {
+            title: "제품을 찾을 수 없습니다",
+        };
+    }
+
+    const title = product.name;
+    const description =
+        product.description ||
+        `${CATEGORY_LABEL[product.category]} 엔진 라인업에 대한 상세 정보입니다.`;
+
+    return {
+        title,
+        description,
+        openGraph: {
+            title,
+            description,
+            type: "article",
+        },
+        twitter: {
+            title,
+            description,
+        },
+    };
 }
 
 function getUsageHint(product: EngineProduct): string {
@@ -28,9 +60,12 @@ function getUsageHint(product: EngineProduct): string {
     }
 }
 
+// ✅ 페이지 컴포넌트 쪽은 Next 16 때문에 params가 Promise
 export default async function ProductDetailPage({
                                                     params,
-                                                }: ProductDetailPageProps) {
+                                                }: {
+    params: Promise<ProductRouteParams>;
+}) {
     const { id } = await params;
     const product = getProductById(id);
 
@@ -42,7 +77,6 @@ export default async function ProductDetailPage({
 
     return (
         <section className="ew-section">
-            {/* 이 래퍼가 실제 콘텐츠 폭을 가운데로 모아 줍니다 */}
             <div className="mx-auto max-w-3xl space-y-8">
                 {/* 상단 네비게이션 */}
                 <div className="flex flex-col gap-3">
