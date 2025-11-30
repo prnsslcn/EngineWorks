@@ -99,10 +99,13 @@ export default function Header() {
       const left = linkRect.left - navRect.left;
       const width = linkRect.width;
 
+      // 여기서 /contact인 경우에만 투명도 0으로 처리
+      const opacity = activeItem.href === "/contact" ? 0 : 1;
+
       setIndicator({
         left,
         width,
-        opacity: 1,
+        opacity,
       });
     };
 
@@ -151,7 +154,7 @@ export default function Header() {
         >
           {/* 공용 이동 바 */}
           <span
-            className="pointer-events-none absolute -bottom-1 h-[2px] rounded-full bg-slate-900 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"
+            className="pointer-events-none absolute -bottom-1 h-[2px] rounded-full bg-slate-900 transition-all duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)]"
             style={{
               left: indicator.left,
               width: indicator.width,
@@ -200,7 +203,7 @@ export default function Header() {
           })}
         </nav>
 
-        {/* 모바일: 햄버거 버튼 (border / shadow 제거) */}
+        {/* 모바일: 햄버거 버튼 */}
         <button
           type="button"
           className="md:hidden inline-flex items-center justify-center rounded-full p-2 hover:bg-slate-100 transition-colors"
@@ -241,7 +244,7 @@ export default function Header() {
         </button>
       </div>
 
-      {/* 모바일 드롭다운 메뉴 (슬라이드 + 페이드) */}
+      {/* 모바일 드롭다운 메뉴 */}
       <div
         className={clsx(
           "md:hidden border-t border-slate-200 bg-white/95 backdrop-blur-sm overflow-hidden transform transition-all duration-250 ease-[cubic-bezier(0.22,1,0.36,1)]",
