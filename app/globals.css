@@ -1,47 +1,137 @@
 @import "tailwindcss";
 @config "../tailwind.config.ts";
 
-/* 글로벌 스타일 */
+/* =========================================================
+   GLOBAL BASE
+   ========================================================= */
 :root {
-  color-scheme: dark;
+  color-scheme: light;
+
+  /* ===== Typography scale (Apple-like smooth rhythm) ===== */
+  --ew-heading-weight: 600;
+  --ew-font-normal: 400;
+  --ew-font-light: 300;
+
+  /* ===== Radius tokens ===== */
+  --ew-radius-lg: 20px;
+  --ew-radius-xl: 28px;
+
+  /* ===== Shadows (더 부드럽고 고급스럽게 조정) ===== */
+  --ew-shadow-card: 0 18px 45px rgba(15, 23, 42, 0.06);
+  --ew-shadow-soft: 0 12px 32px rgba(15, 23, 42, 0.04);
+
+  /* ===== Brand Colors ===== */
+  --ew-primary: #041f45;
+  --ew-primary-hover: #05255c;
+
+  --ew-bg: #f5f5f7; /* Apple 톤 배경 */
+  --ew-white: #ffffff;
+
+  --ew-border: rgba(226, 232, 240, 0.9); /* slate-200 */
+  --ew-border-soft: rgba(226, 232, 240, 0.6);
 }
 
+/* 기본 페이지 리셋 */
 html,
 body {
   margin: 0;
   padding: 0;
   min-height: 100%;
+  scroll-behavior: auto; /* Lenis 사용이므로 반드시 auto */
 }
 
 body {
-  /* Tailwind 유틸리티를 여기서 @apply로 사용 */
-  @apply bg-slate-950 text-slate-100 antialiased;
+  @apply bg-[var(--ew-bg)] text-slate-900 antialiased;
+  font-weight: var(--ew-font-normal);
 }
+
+/* =========================================================
+   LAYOUT WRAPPERS
+   ========================================================= */
 
 /* 공통 Container */
 .ew-page-container {
   @apply max-w-6xl mx-auto px-4 sm:px-6 lg:px-8;
 }
 
-/* Section */
+/* 공통 Section Padding */
 .ew-section {
   @apply py-12 sm:py-16 lg:py-20;
 }
 
-/* Card 공통 */
+/* =========================================================
+   CARD STYLES
+   ========================================================= */
+
+/* 기본 화이트 카드 */
 .ew-card {
-  @apply rounded-2xl bg-slate-900/80 border border-slate-800 shadow-ew-card backdrop-blur;
+  background: var(--ew-white);
+  border: 1px solid var(--ew-border);
+  border-radius: var(--ew-radius-xl);
+  box-shadow: var(--ew-shadow-card);
+  @apply p-5;
 }
 
-/* 버튼 스타일 */
+/* 더 가벼운 Soft 카드 (정보 블록용) */
+.ew-card-soft {
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid var(--ew-border-soft);
+  border-radius: var(--ew-radius-xl);
+  box-shadow: var(--ew-shadow-soft);
+  backdrop-filter: blur(6px);
+  @apply p-5;
+}
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+
+/* Primary (Deep Navy) */
 .ew-btn-primary {
-  @apply inline-flex items-center justify-center rounded-full px-6 py-2.5
-  bg-ew-accent text-slate-950 font-semibold text-sm tracking-tight
-  hover:bg-sky-400 transition-colors;
+  background: var(--ew-primary);
+  color: white;
+  border-radius: 9999px;
+  @apply inline-flex items-center justify-center px-6 py-2.5
+  font-semibold text-sm tracking-tight transition-colors;
 }
 
+.ew-btn-primary:hover {
+  background: var(--ew-primary-hover);
+}
+
+/* Ghost Button */
 .ew-btn-ghost {
-  @apply inline-flex items-center justify-center rounded-full px-6 py-2.5
-  border border-slate-700 text-slate-100 text-sm
-  hover:bg-slate-800/70 transition-colors;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--ew-border);
+  border-radius: 9999px;
+  @apply inline-flex items-center justify-center px-6 py-2.5
+  text-sm text-slate-900 transition-colors;
+}
+
+.ew-btn-ghost:hover {
+  @apply bg-slate-100;
+}
+
+/* =========================================================
+   TAG / LABEL
+   ========================================================= */
+.ew-tag {
+  @apply inline-flex items-center gap-1;
+  background: #f1f5f9; /* slate-100 */
+  border: 1px solid var(--ew-border);
+  border-radius: 9999px;
+  @apply px-3 py-1 text-[11px] font-medium text-slate-600;
+}
+
+/* =========================================================
+   TYPOGRAPHY HELPERS
+   ========================================================= */
+
+.ew-section-title {
+  font-weight: var(--ew-heading-weight);
+  @apply text-2xl sm:text-3xl tracking-tight;
+}
+
+.ew-section-subtitle {
+  @apply text-sm sm:text-base text-slate-500 leading-relaxed;
 }
