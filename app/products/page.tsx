@@ -23,6 +23,8 @@ function getCategoryDescription(category: EngineProduct["category"]): string {
   }
 }
 
+export const revalidate = 600;
+
 export default async function ProductsPage() {
   const products = await fetchAllProducts();
 

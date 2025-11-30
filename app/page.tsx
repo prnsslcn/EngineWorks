@@ -32,6 +32,8 @@ function getProductTagline(product: EngineProduct): string {
   }
 }
 
+export const revalidate = 600; // 10분마다 재생성
+
 export default async function HomePage() {
   const allProducts: EngineProduct[] = await fetchAllProducts();
   const featuredEngines = allProducts.slice(0, 3);

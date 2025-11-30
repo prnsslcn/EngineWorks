@@ -39,6 +39,8 @@ function getCategoryDescription(category: EngineProduct["category"]): string {
   }
 }
 
+export const revalidate = 600;
+
 export default async function ProductDetailPage({ params }: ProductPageProps) {
   const { id } = await params;
   const product = await fetchProductBySlug(id);

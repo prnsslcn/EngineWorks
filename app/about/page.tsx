@@ -61,6 +61,8 @@ const FACILITIES = [
   },
 ];
 
+export const dynamic = "force-static";
+
 export default function AboutPage() {
   return (
     <div className="ew-section space-y-16">

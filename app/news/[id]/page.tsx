@@ -54,6 +54,8 @@ function formatDateTime(publishedAt: string): string {
   });
 }
 
+export const revalidate = 300; // 5분
+
 export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
   const { id } = await params;
   const numericId = Number(id);
