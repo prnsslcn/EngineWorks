@@ -1,107 +1,119 @@
 // app/contact/page.tsx
 
-import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import ContactForm from "@/components/ContactForm";
 
-export const metadata: Metadata = {
-    title: "문의하기",
-    description:
-        "EngineWorks 엔진 및 솔루션에 대한 프로젝트 상담, 기술 문의를 남겨주세요.",
+type ContactPageSearchParams = {
+  status?: string;
+  reason?: string;
+  engine?: string;
 };
 
-type ContactSearchParams = {
-    status?: string;
-    reason?: string;
+type ContactPageProps = {
+  searchParams: Promise<ContactPageSearchParams>;
 };
 
-interface ContactPageProps {
-    searchParams: Promise<ContactSearchParams>;
+function buildAlertBox({
+  status,
+  reason,
+}: {
+  status?: string;
+  reason?: string;
+}): ReactNode {
+  if (status === "success") {
+    return (
+      <div className="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs sm:text-sm text-emerald-800">
+        문의가 정상적으로 접수되었습니다. 담당자가 내용을 확인한 후, 남겨주신
+        이메일로 회신 드릴 예정입니다.
+      </div>
+    );
+  }
+
+  if (status === "error") {
+    return (
+      <div className="mb-6 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs sm:text-sm text-rose-800">
+        문의 접수 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요. 문제가
+        지속될 경우, 관리자에게 직접 문의해 주세요.
+        {reason && (
+          <div className="mt-1 text-[11px] text-rose-600/80">
+            (참고: {reason})
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return null;
 }
 
 export default async function ContactPage({ searchParams }: ContactPageProps) {
-    const { status, reason } = await searchParams;
+  const { status, reason, engine } = await searchParams;
+  const alertBox = buildAlertBox({ status, reason });
 
-    let alertBox: React.ReactNode = null;
+  return (
+    <div className="ew-section">
+      <div className="grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:items-start">
+        {/* 좌측: 설명 */}
+        <section className="space-y-5">
+          <div className="space-y-3">
+            <p className="ew-tag">Contact</p>
+            <h1 className="ew-section-title">
+              프로젝트와 엔진 적용에 대해
+              <br className="hidden sm:block" />
+              함께 이야기해 보겠습니다.
+            </h1>
+            <p className="ew-section-subtitle max-w-xl">
+              구체적인 프로젝트가 있지 않더라도, 검토 중인 설비, 예상 부하, 설치
+              환경 등 고민 중인 내용을 자유롭게 남겨 주세요. 가능하다면 현장의
+              운전 조건과 요구 사항을 함께 공유해 주시면, 더 구체적인 논의가
+              가능합니다.
+            </p>
+          </div>
 
-    if (status === "success") {
-        alertBox = (
-            <div className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs sm:text-sm text-emerald-700">
-                문의가 정상적으로 접수되었습니다. 담당자가 확인 후 입력하신 이메일로
-                회신을 드릴 예정입니다.
+          <div className="grid gap-3 sm:grid-cols-2 text-xs sm:text-sm text-slate-600">
+            <div className="ew-card-soft px-4 py-4">
+              <p className="text-[11px] font-medium text-slate-500 mb-1">
+                어떤 내용을 남기면 좋을까요?
+              </p>
+              <ul className="space-y-1.5">
+                <li>• 프로젝트 위치 및 용도</li>
+                <li>• 예상 출력/부하 범위</li>
+                <li>• 운전 패턴(상시/비상, 피크 부하 등)</li>
+                <li>• 특이 환경(해안, 고지대, 고온 등)</li>
+              </ul>
             </div>
-        );
-    } else if (status === "error") {
-        alertBox = (
-            <div className="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs sm:text-sm text-rose-700">
-                문의 등록 중 오류가 발생했습니다.
-                <br />
-                잠시 후 다시 시도해주시거나, 문제가 지속될 경우 이메일로 직접 연락
-                부탁드립니다.
-                {reason && (
-                    <span className="mt-1 block text-[11px] text-rose-500">
-            (오류 정보: {reason})
-          </span>
-                )}
+            <div className="ew-card-soft px-4 py-4">
+              <p className="text-[11px] font-medium text-slate-500 mb-1">
+                엔진 제품과 연계한 상담
+              </p>
+              <p>
+                제품 상세 페이지에서 “이 엔진으로 상담 문의” 버튼을 통해
+                접속하신 경우, 해당 엔진명이 자동으로 함께 전달됩니다.
+              </p>
             </div>
-        );
-    }
+          </div>
 
-    return (
-        <div className="ew-section">
-            <div className="ew-page-container grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:items-start">
-                {/* Left: 안내 텍스트 */}
-                <section className="space-y-6">
-                    <div className="space-y-3">
-                        <p className="text-xs font-medium uppercase tracking-[0.25em] text-slate-400">
-                            CONTACT
-                        </p>
-                        <h1 className="ew-section-title">
-                            프로젝트, 기술 문의를
-                            <br className="hidden sm:block" />
-                            남겨주세요.
-                        </h1>
-                        <p className="ew-section-subtitle max-w-xl">
-                            새로운 설비 구축, 리파워링, 유지보수 전략, 플릿 모니터링 도입 등
-                            EngineWorks 엔진과 솔루션이 필요한 내용을 자유롭게 작성해 주세요.
-                            가능한 한 구체적인 현장 정보를 함께 남겨주시면 더 정확하게
-                            검토할 수 있습니다.
-                        </p>
-                    </div>
+          <p className="text-[11px] sm:text-xs text-slate-500">
+            * 이 페이지는 포트폴리오용 예시이며, 실제 메일은 설정된 수신자
+            이메일로 전송됩니다.
+          </p>
+        </section>
 
-                    <div className="space-y-4 text-xs sm:text-sm text-slate-600">
-                        <div>
-                            <p className="font-medium text-slate-800 mb-1">예시로 적어주시면 좋은 정보들</p>
-                            <ul className="space-y-1.5">
-                                <li className="flex gap-2">
-                                    <span className="mt-[6px] h-[3px] w-[3px] rounded-full bg-slate-400" />
-                                    <span>설비 용도 (예: 데이터센터 비상 전원, 연안 여객선 추진 등)</span>
-                                </li>
-                                <li className="flex gap-2">
-                                    <span className="mt-[6px] h-[3px] w-[3px] rounded-full bg-slate-400" />
-                                    <span>예상 부하 패턴 (상시 운전 / 비상용 / 피크 부하 등)</span>
-                                </li>
-                                <li className="flex gap-2">
-                                    <span className="mt-[6px] h-[3px] w-[3px] rounded-full bg-slate-400" />
-                                    <span>설치 환경 (실내/실외, 온도 범위, 소음/배출 규제 조건 등)</span>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <div className="text-[11px] sm:text-xs text-slate-500">
-                            입력하신 정보는 문의 응답을 위한 용도 외에는 사용되지 않으며,
-                            일정 기간 이후 안전하게 파기됩니다.
-                        </div>
-                    </div>
-                </section>
-
-                {/* Right: 문의 폼 */}
-                <section>
-                    <div className="ew-card-soft p-5 sm:p-6">
-                        {alertBox}
-                        <ContactForm />
-                    </div>
-                </section>
-            </div>
-        </div>
-    );
+        {/* 우측: 폼 */}
+        <section className="space-y-4">
+          {alertBox}
+          <div className="ew-card-soft px-5 py-5 sm:px-6 sm:py-6">
+            <h2 className="text-sm sm:text-base font-semibold text-slate-900 mb-3">
+              문의 내용 작성
+            </h2>
+            <p className="text-[11px] sm:text-xs text-slate-500 mb-4">
+              아래 항목을 채운 후, 가능한 한 자세히 문의 내용을 남겨 주세요. *
+              표시는 필수 항목입니다.
+            </p>
+            <ContactForm defaultEngineName={engine} />
+          </div>
+        </section>
+      </div>
+    </div>
+  );
 }
