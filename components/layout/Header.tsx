@@ -33,7 +33,7 @@ export default function Header() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
 
-  // 공용 인디케이터 바 위치 계산용
+  // 데스크톱용 인디케이터 바
   const navRef = useRef<HTMLDivElement | null>(null);
   const linkRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
   const [indicator, setIndicator] = useState<IndicatorStyle>({
@@ -42,7 +42,9 @@ export default function Header() {
     opacity: 0,
   });
 
-  // 각 링크에 ref를 등록하는 헬퍼
+  // 모바일 메뉴
+  const [mobileOpen, setMobileOpen] = useState(false);
+
   const registerLinkRef = (href: string) => (el: HTMLAnchorElement | null) => {
     linkRefs.current[href] = el;
   };
@@ -65,7 +67,7 @@ export default function Header() {
     };
   }, []);
 
-  // 활성 메뉴 변경/리사이즈 시 인디케이터 위치 업데이트
+  // 활성 메뉴 변경/리사이즈 시 인디케이터 위치 업데이트 (데스크톱)
   useEffect(() => {
     const updateIndicator = () => {
       const currentPath = pathname ?? "/";
@@ -89,10 +91,14 @@ export default function Header() {
       const navRect = navEl.getBoundingClientRect();
       const linkRect = linkEl.getBoundingClientRect();
 
+      if (linkRect.width === 0) {
+        setIndicator((prev) => ({ ...prev, opacity: 0 }));
+        return;
+      }
+
       const left = linkRect.left - navRect.left;
       const width = linkRect.width;
 
-      // 살짝 부드럽게 이동하는 느낌
       setIndicator({
         left,
         width,
@@ -100,14 +106,16 @@ export default function Header() {
       });
     };
 
-    // 레이아웃이 그려진 뒤에 계산되도록
     requestAnimationFrame(updateIndicator);
-
     window.addEventListener("resize", updateIndicator);
     return () => {
       window.removeEventListener("resize", updateIndicator);
     };
   }, [pathname]);
+
+  const handleMobileNavClick = () => {
+    setMobileOpen(false);
+  };
 
   return (
     <header
@@ -136,10 +144,10 @@ export default function Header() {
           </Link>
         </div>
 
-        {/* 네비게이션 + 인디케이터 바 */}
+        {/* 데스크톱 네비게이션 */}
         <nav
           ref={navRef}
-          className="relative flex items-center gap-3 sm:gap-5 text-xs sm:text-sm"
+          className="relative hidden md:flex items-center gap-3 sm:gap-5 text-xs sm:text-sm"
         >
           {/* 공용 이동 바 */}
           <span
@@ -191,6 +199,101 @@ export default function Header() {
             );
           })}
         </nav>
+
+        {/* 모바일: 햄버거 버튼 (border / shadow 제거) */}
+        <button
+          type="button"
+          className="md:hidden inline-flex items-center justify-center rounded-full p-2 hover:bg-slate-100 transition-colors"
+          onClick={() => setMobileOpen((prev) => !prev)}
+          aria-label={mobileOpen ? "메뉴 닫기" : "메뉴 열기"}
+          aria-expanded={mobileOpen}
+        >
+          <span className="sr-only">
+            {mobileOpen ? "메뉴 닫기" : "메뉴 열기"}
+          </span>
+          <span className="relative flex h-3 w-5 items-center justify-center">
+            {/* 위 줄 */}
+            <span
+              className={clsx(
+                "absolute h-[1.5px] w-full rounded-full bg-slate-800 transition-transform duration-200 ease-out",
+                mobileOpen
+                  ? "translate-y-0 rotate-45"
+                  : "-translate-y-[4px] rotate-0",
+              )}
+            />
+            {/* 가운데 줄 */}
+            <span
+              className={clsx(
+                "absolute h-[1.5px] w-full rounded-full bg-slate-800 transition-all duration-150 ease-out",
+                mobileOpen ? "opacity-0" : "opacity-100",
+              )}
+            />
+            {/* 아래 줄 */}
+            <span
+              className={clsx(
+                "absolute h-[1.5px] w-full rounded-full bg-slate-800 transition-transform duration-200 ease-out",
+                mobileOpen
+                  ? "translate-y-0 -rotate-45"
+                  : "translate-y-[4px] rotate-0",
+              )}
+            />
+          </span>
+        </button>
+      </div>
+
+      {/* 모바일 드롭다운 메뉴 (슬라이드 + 페이드) */}
+      <div
+        className={clsx(
+          "md:hidden border-t border-slate-200 bg-white/95 backdrop-blur-sm overflow-hidden transform transition-all duration-250 ease-[cubic-bezier(0.22,1,0.36,1)]",
+          mobileOpen
+            ? "opacity-100 max-h-64 translate-y-0"
+            : "opacity-0 max-h-0 -translate-y-2 pointer-events-none",
+        )}
+      >
+        <div className="ew-page-container py-3">
+          <nav className="flex flex-col gap-1 text-xs">
+            {NAV_ITEMS.map((item) => {
+              const active = isActivePath(pathname ?? "/", item.href);
+              const isContact = item.href === "/contact";
+
+              if (isContact) {
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={handleMobileNavClick}
+                    className={clsx(
+                      "mt-1 inline-flex items-center justify-center rounded-full px-4 py-2 border text-[11px] font-medium transition-colors",
+                      "border-slate-900",
+                      active
+                        ? "bg-slate-900 text-white"
+                        : "text-slate-900 hover:bg-slate-900 hover:text-white",
+                    )}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              }
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={handleMobileNavClick}
+                  className={clsx(
+                    "flex items-center justify-between rounded-xl px-3 py-2 text-[11px] font-medium transition-colors",
+                    active
+                      ? "bg-slate-900 text-white"
+                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
+                  )}
+                >
+                  <span>{item.label}</span>
+                  {active && <span className="text-[9px]">●</span>}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
       </div>
     </header>
   );
