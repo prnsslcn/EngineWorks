@@ -1,6 +1,6 @@
 // app/admin/news/page.tsx
-import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
+import { supabaseServer } from "@/lib/supabaseServer";
 
 interface AdminNewsPost {
   id: number;
@@ -10,9 +10,9 @@ interface AdminNewsPost {
   is_published: boolean;
 }
 
-/** 목록 조회 */
+/** 목록 조회 (서버용 supabaseServer 사용) */
 async function getAllPosts(): Promise<AdminNewsPost[]> {
-  const { data, error } = await supabase
+  const { data, error } = await supabaseServer
     .from("news_post")
     .select("id, title, content_md, published_at, is_published")
     .order("published_at", { ascending: false });
@@ -38,7 +38,7 @@ export async function createNewsPost(formData: FormData) {
     return;
   }
 
-  const { error } = await supabase.from("news_post").insert({
+  const { error } = await supabaseServer.from("news_post").insert({
     title,
     content_md,
     is_published,
@@ -57,11 +57,20 @@ export default async function AdminNewsPage() {
   return (
     <section className="ew-section">
       <div className="ew-page-container space-y-10">
-        <header className="space-y-2">
-          <h1 className="text-2xl font-bold">뉴스 관리</h1>
-          <p className="text-sm text-slate-400">
-            Supabase <code>news_post</code> 테이블 기반 관리자 화면입니다.
-          </p>
+        {/* 상단 헤더 + 로그아웃 */}
+        <header className="flex items-start justify-between gap-4">
+          <div className="space-y-2">
+            <h1 className="text-2xl font-bold">뉴스 관리</h1>
+            <p className="text-sm text-slate-400">
+              Supabase <code>news_post</code> 테이블 기반 관리자 화면입니다.
+            </p>
+          </div>
+          <Link
+            href="/admin/logout"
+            className="text-[11px] text-slate-400 hover:text-slate-600 hover:underline"
+          >
+            로그아웃
+          </Link>
         </header>
 
         {/* 새 글 작성 폼 */}
@@ -73,7 +82,7 @@ export default async function AdminNewsPage() {
               <input
                 name="title"
                 type="text"
-                className="w-full rounded-md border border-slate-700 bg-slate-900/60 px-3 py-2 text-sm"
+                className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-900/10"
                 placeholder="예) EngineWorks 신제품 엔진 라인업 발표"
                 required
               />
@@ -85,7 +94,7 @@ export default async function AdminNewsPage() {
               </label>
               <textarea
                 name="content_md"
-                className="w-full min-h-[140px] rounded-md border border-slate-700 bg-slate-900/60 px-3 py-2 text-sm"
+                className="w-full min-h-[140px] rounded-md border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-900/10"
                 placeholder="본문 내용을 입력하세요."
                 required
               />
@@ -97,7 +106,7 @@ export default async function AdminNewsPage() {
                   type="checkbox"
                   name="is_published"
                   defaultChecked
-                  className="h-4 w-4 rounded border-slate-600 bg-slate-900"
+                  className="h-4 w-4 rounded border-slate-300"
                 />
                 <span>공개 여부 (is_published)</span>
               </label>
@@ -136,20 +145,20 @@ export default async function AdminNewsPage() {
                           {post.title}
                         </span>
                         {!post.is_published && (
-                          <span className="rounded-full bg-slate-700 px-2 py-0.5 text-[11px] text-slate-200">
+                          <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] text-slate-500">
                             비공개
                           </span>
                         )}
                       </div>
-                      <p className="text-xs text-slate-400 line-clamp-1">
+                      <p className="text-xs text-slate-500 line-clamp-1">
                         {post.content_md}
                       </p>
                       <p className="text-[11px] text-slate-500">{dateStr}</p>
                     </div>
-                    ㄴ
+
                     <Link
                       href={`/admin/news/${post.id}`}
-                      className="text-xs text-ew-accent hover:underline whitespace-nowrap"
+                      className="text-xs text-slate-700 hover:underline whitespace-nowrap"
                     >
                       수정 / 삭제
                     </Link>
