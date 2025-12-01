@@ -1,7 +1,6 @@
 // components/ContactForm.tsx
 "use client";
 
-import { useState } from "react";
 import { useFormStatus } from "react-dom";
 import { submitContact } from "@/app/contact/action";
 
@@ -24,23 +23,21 @@ function SubmitButton() {
 }
 
 export default function ContactForm({ defaultEngineName }: ContactFormProps) {
-  const [internalError, setInternalError] = useState<string | null>(null);
-
   return (
-    <form
-      action={async (formData) => {
-        setInternalError(null);
-        try {
-          await submitContact(formData);
-        } catch (err) {
-          console.error("[contact] client action error:", err);
-          setInternalError(
-            "폼 전송 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.",
-          );
-        }
-      }}
-      className="space-y-4"
-    >
+    <form action={submitContact} className="space-y-4">
+      {/* 🔒 Honeypot 필드 (봇 방지용, 사용자에게는 숨김) */}
+      <div className="mb-2">
+        <label htmlFor="hp_check" className="block text-xs text-slate-500">
+          회사 홈페이지 (채우지 마세요)
+          <input type="text" name="hp_check" tabIndex={-1} autoComplete="off" />
+        </label>
+      </div>
+
+      {/* 제품 상세에서 넘어온 엔진명 (있다면 hidden으로 전달) */}
+      {defaultEngineName && (
+        <input type="hidden" name="engine" value={defaultEngineName} />
+      )}
+
       {/* 이름 */}
       <div className="space-y-1.5">
         <label
@@ -135,10 +132,6 @@ export default function ContactForm({ defaultEngineName }: ContactFormProps) {
           placeholder={`프로젝트 개요, 설비 용도, 예상 일정, 참고하셨으면 하는 내용을 자유롭게 작성해 주세요.`}
         />
       </div>
-
-      {internalError && (
-        <p className="text-[11px] text-rose-600">{internalError}</p>
-      )}
 
       <div className="pt-2 flex items-center justify-between gap-3">
         <p className="text-[11px] text-slate-400">
