@@ -12,6 +12,7 @@
     "@studio-freight/lenis": "^1.0.42",
     "@supabase/supabase-js": "^2.86.0",
     "clsx": "^2.1.1",
+    "marked": "^17.0.1",
     "next": "16.0.5",
     "prettier": "^3.7.3",
     "react": "19.2.0",
