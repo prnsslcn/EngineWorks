@@ -31,7 +31,9 @@ interface IndicatorStyle {
 
 export default function Header() {
   const pathname = usePathname();
-  const [scrolled, setScrolled] = useState(false);
+
+  // 0 ~ 1 사이의 스크롤 진행도 (0 = 최상단, 1 = threshold 이상 내려감)
+  const [scrollProgress, setScrollProgress] = useState(0);
 
   // 데스크톱용 인디케이터 바
   const navRef = useRef<HTMLDivElement | null>(null);
@@ -49,14 +51,13 @@ export default function Header() {
     linkRefs.current[href] = el;
   };
 
-  // 스크롤 시 헤더 스타일 변경
+  // 스크롤 시 헤더 스타일(배경/그림자)용 진행도 계산
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 12) {
-        setScrolled(true);
-      } else {
-        setScrolled(false);
-      }
+      const y = window.scrollY;
+      const max = 80; // 0 ~ 80px 사이에서만 부드럽게 변화
+      const progress = Math.min(y / max, 1);
+      setScrollProgress(progress);
     };
 
     handleScroll();
@@ -66,6 +67,9 @@ export default function Header() {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
+
+  const hasScrolled = scrollProgress > 0.02;
+  const shadowOpacity = 0.08 * scrollProgress; // 최대 0.12 정도의 그림자
 
   // 활성 메뉴 변경/리사이즈 시 인디케이터 위치 업데이트 (데스크톱)
   useEffect(() => {
@@ -99,7 +103,6 @@ export default function Header() {
       const left = linkRect.left - navRect.left;
       const width = linkRect.width;
 
-      // 여기서 /contact인 경우에만 투명도 0으로 처리
       const opacity = activeItem.href === "/contact" ? 0 : 1;
 
       setIndicator({
@@ -124,10 +127,16 @@ export default function Header() {
     <header
       className={clsx(
         "sticky top-0 z-40 transition-colors",
-        scrolled
-          ? "bg-white/90 backdrop-blur border-b border-slate-200"
-          : "bg-white/70 backdrop-blur-sm border-b border-transparent",
+        hasScrolled
+          ? "bg-white/90 backdrop-blur"
+          : "bg-white/70 backdrop-blur-sm",
       )}
+      style={{
+        boxShadow:
+          shadowOpacity > 0
+            ? `0 18px 45px rgba(15, 23, 42, ${shadowOpacity})`
+            : "none",
+      }}
     >
       <div className="ew-page-container flex items-center justify-between gap-4 py-3 sm:py-4">
         {/* 로고 / 브랜드 */}
@@ -154,7 +163,7 @@ export default function Header() {
         >
           {/* 공용 이동 바 */}
           <span
-            className="pointer-events-none absolute -bottom-1 h-[2px] rounded-full bg-slate-900 transition-all duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)]"
+            className="pointer-events-none absolute -bottom-1 h-[2px] rounded-full bg-slate-900 transition-all duration-[1000ms] ease-[cubic-bezier(0.22,1,0.36,1)]"
             style={{
               left: indicator.left,
               width: indicator.width,
