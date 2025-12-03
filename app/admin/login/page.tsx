@@ -17,12 +17,13 @@ async function verifyPassword(formData: FormData) {
   }
 
   if (password !== adminPassword) {
+    // 비밀번호 틀리면 에러 플래그만 붙여서 로그인 페이지로
     redirect("/admin/login?error=1");
   }
 
   const token = Buffer.from(sessionSecret).toString("base64");
 
-  // ✅ Next 16: cookies()는 Promise이므로 await 필요
+  // ✅ Next 16: cookies() 가 Promise 이므로 await 필요
   const cookieStore = await cookies();
 
   cookieStore.set(ADMIN_COOKIE_NAME, token, {
@@ -36,16 +37,24 @@ async function verifyPassword(formData: FormData) {
   redirect(from);
 }
 
+// ✅ Next.js 16 스타일: searchParams는 Promise 로 들어옴
+type AdminLoginSearchParams = {
+  error?: string;
+  from?: string;
+};
+
 interface AdminLoginPageProps {
-  searchParams?: {
-    error?: string;
-    from?: string;
-  };
+  searchParams: Promise<AdminLoginSearchParams>;
 }
 
-export default function AdminLoginPage({ searchParams }: AdminLoginPageProps) {
-  const hasError = searchParams?.error;
-  const from = searchParams?.from ?? "/admin/news";
+// ✅ 서버 컴포넌트를 async 로 바꾸고, searchParams 를 await 해서 사용
+export default async function AdminLoginPage({
+  searchParams,
+}: AdminLoginPageProps) {
+  const { error, from } = await searchParams;
+
+  const hasError = Boolean(error);
+  const fromPath = from ?? "/admin/news";
 
   return (
     <div className="ew-page-container min-h-[60vh] flex items-center justify-center">
@@ -68,7 +77,7 @@ export default function AdminLoginPage({ searchParams }: AdminLoginPageProps) {
 
         <form action={verifyPassword} className="space-y-4">
           {/* 로그인 후 돌아갈 경로 */}
-          <input type="hidden" name="from" value={from} />
+          <input type="hidden" name="from" value={fromPath} />
 
           <div className="space-y-1">
             <label className="block text-xs font-medium text-slate-600">
