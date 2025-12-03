@@ -50,7 +50,7 @@ function getExcerpt(content: string, maxLength = 110): string {
   return `${plain.slice(0, maxLength)}...`;
 }
 
-export const revalidate = 300; // 5분
+export const dynamic = "force-dynamic";
 
 export default async function NewsPage() {
   const posts = await getNewsPosts();
