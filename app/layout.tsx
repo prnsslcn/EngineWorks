@@ -3,7 +3,10 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { SmoothScrollProvider } from "@/components/theme/SmoothScrollProvider"; // ⬅ 추가
+import { SmoothScrollProvider } from "@/components/theme/SmoothScrollProvider";
+import Script from "next/script";
+
+const GA_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
 const siteUrl = "https://engine-works-jurg.vercel.app";
 
@@ -25,6 +28,24 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className="bg-[#f5f5f7] text-slate-900 antialiased">
+        {GA_ID && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script id="ga4-init" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${GA_ID}', {
+                  page_path: window.location.pathname,
+                });
+              `}
+            </Script>
+          </>
+        )}
         <SmoothScrollProvider>
           <div className="min-h-screen flex flex-col">
             <Header />
